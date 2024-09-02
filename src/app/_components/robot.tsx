@@ -3,14 +3,15 @@ import { memo } from "react";
 
 import { ExtrudeSVG } from "./extrude-svg";
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const BODY_LENGTH = 94;
 const BODY_WIDTH = 70;
-// const BODY_HEIGHT = 33;
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const BODY_HEIGHT = 33;
 const LEG_LENGTH = 48;
 const LEG_WIDTH = 8;
 const LEG_THICKNESS = 6;
-const LEG_JOINT_OFFSET_X = 8;
-const LEG_JOINT_OFFSET_Y = LEG_LENGTH / 2 - LEG_WIDTH / 2;
+const LEG_OFFSET_X = LEG_WIDTH;
 
 export interface RobotLegRotations {
   frontLeft: number;
@@ -59,13 +60,11 @@ function RobotLeg({
   back?: boolean;
   rotation?: number;
 }) {
-  const x = front
-    ? -BODY_LENGTH / 2 + LEG_WIDTH / 2 + LEG_JOINT_OFFSET_X
-    : BODY_LENGTH / 2 - LEG_WIDTH / 2 - LEG_JOINT_OFFSET_X;
-  const y = -LEG_LENGTH / 2 + LEG_JOINT_OFFSET_Y;
+  const x = front ? LEG_LENGTH - LEG_OFFSET_X : -LEG_LENGTH + LEG_OFFSET_X;
+  const y = 0;
   const z = left
-    ? BODY_WIDTH / 2 + LEG_THICKNESS / 2 + 0.4
-    : -BODY_WIDTH / 2 - LEG_THICKNESS / 2 - 0.4;
+    ? -BODY_WIDTH / 2 - LEG_THICKNESS / 2
+    : BODY_WIDTH / 2 + LEG_THICKNESS / 2;
 
   rotation = rotation % 360;
   if (rotation < -135) {
@@ -73,7 +72,7 @@ function RobotLeg({
   } else if (rotation > 135) {
     rotation = 135;
   }
-  const degree = front ? rotation - 90 : 90 - rotation;
+  const degree = front ? 180 - rotation : rotation;
 
   return (
     <group position={[x, y, z]} rotation={[0, 0, (Math.PI / 180) * degree]}>
@@ -83,15 +82,12 @@ function RobotLeg({
 }
 
 const LegMesh = memo(({ color = "red" }: { color?: string }) => (
-  <ExtrudeSVG depth={LEG_THICKNESS} position={[0, -LEG_JOINT_OFFSET_Y, 0]}>
+  <ExtrudeSVG
+    depth={LEG_THICKNESS}
+    position={[-LEG_LENGTH / 2 + LEG_WIDTH / 2, 0, 0]}
+  >
     <svg>
-      <rect
-        x={0}
-        y={0}
-        width={LEG_WIDTH}
-        height={LEG_LENGTH}
-        rx={LEG_WIDTH / 2}
-      />
+      <rect width={LEG_LENGTH} height={LEG_WIDTH} ry={LEG_WIDTH / 2} />
     </svg>
     <meshPhongMaterial color={color} />
     <Edges color="black" />

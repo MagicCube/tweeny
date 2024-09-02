@@ -18,10 +18,10 @@ function Scene() {
   return (
     <Robot
       legRotations={{
-        frontLeft: BASE - Math.sin(angle) * AMPLITUDE,
-        frontRight: BASE + Math.sin(angle) * AMPLITUDE,
-        backLeft: BASE + Math.sin(angle) * AMPLITUDE,
-        backRight: BASE - Math.sin(angle) * AMPLITUDE,
+        frontLeft: Math.sin(angle) * AMPLITUDE + BASE,
+        frontRight: -Math.sin(angle) * AMPLITUDE + BASE,
+        backLeft: -Math.sin(angle) * AMPLITUDE + BASE,
+        backRight: Math.sin(angle) * AMPLITUDE + BASE,
       }}
     />
   );
@@ -38,7 +38,8 @@ export default function Page() {
           zoom: 5, // Adjust this value to zoom in or out
         }}
       >
-        <ambientLight intensity={0.5} />
+        <axesHelper args={[100]} />
+        <ambientLight intensity={0.66} />
         <pointLight position={[200, 200, 200]} />
         <OrbitControls />
         <Scene />
