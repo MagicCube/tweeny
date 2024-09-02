@@ -1,6 +1,5 @@
-import { useFrame } from "@react-three/fiber";
 import { Edges } from "@react-three/drei";
-import { memo, useState } from "react";
+import { memo } from "react";
 
 import { ExtrudeSVG } from "./extrude-svg";
 
@@ -13,20 +12,25 @@ const LEG_THICKNESS = 6;
 const LEG_JOINT_OFFSET_X = 8;
 const LEG_JOINT_OFFSET_Y = LEG_LENGTH / 2 - LEG_WIDTH / 2;
 
-export function Robot() {
-  const [angle, setAngle] = useState(0);
+export interface RobotLegRotations {
+  frontLeft: number;
+  frontRight: number;
+  backLeft: number;
+  backRight: number;
+}
 
-  useFrame(() => {
-    setAngle(angle + 0.1);
-  });
-
+export function Robot({
+  legRotations: { frontLeft = 0, frontRight = 0, backLeft = 0, backRight = 0 },
+}: {
+  legRotations: RobotLegRotations;
+}) {
   return (
     <group>
       <RobotBody />
-      <RobotLeg front left rotation={-Math.sin(angle) * 0.66} color="blue" />
-      <RobotLeg front right rotation={Math.sin(angle) * 0.66} color="blue" />
-      <RobotLeg back left rotation={Math.sin(angle) * 0.66} color="red" />
-      <RobotLeg back right rotation={-Math.sin(angle) * 0.66} color="red" />
+      <RobotLeg front left rotation={frontLeft} color="blue" />
+      <RobotLeg front right rotation={frontRight} color="blue" />
+      <RobotLeg back left rotation={backLeft} color="red" />
+      <RobotLeg back right rotation={backRight} color="red" />
     </group>
   );
 }
@@ -63,8 +67,16 @@ function RobotLeg({
     ? BODY_WIDTH / 2 + LEG_THICKNESS / 2 + 0.4
     : -BODY_WIDTH / 2 - LEG_THICKNESS / 2 - 0.4;
 
+  rotation = rotation % 360;
+  if (rotation < -135) {
+    rotation = -135;
+  } else if (rotation > 135) {
+    rotation = 135;
+  }
+  const degree = front ? rotation - 90 : 90 - rotation;
+
   return (
-    <group position={[x, y, z]} rotation={[0, 0, rotation]}>
+    <group position={[x, y, z]} rotation={[0, 0, (Math.PI / 180) * degree]}>
       <LegMesh color={color} />
     </group>
   );
