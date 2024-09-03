@@ -1,1 +1,3 @@
-export type TweenTarget = object;
+export interface TweenTarget {
+  write(value: number): void;
+}
