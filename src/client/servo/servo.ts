@@ -12,6 +12,7 @@ const MAX_ANGLE = 270 / 2;
 export class Servo {
   private _angle = 0;
   private _targetAngle = 0;
+  private _speed = MAX_SPEED;
   private _moving = false;
   private _lastUpdateTick = 0;
 
@@ -27,6 +28,10 @@ export class Servo {
 
   get moving() {
     return this._moving;
+  }
+
+  get speed() {
+    return this._speed;
   }
 
   write(angle: number) {
@@ -58,7 +63,7 @@ export class Servo {
     const movingDirection = Math.sign(this.targetAngle - this.angle);
     if (movingDirection) {
       const step = Math.min(
-        MAX_SPEED * elapsed,
+        this.speed * elapsed,
         Math.abs(this.targetAngle - this.angle),
       );
       this._immediatelySetAngle(this.angle + step * movingDirection);
