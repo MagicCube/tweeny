@@ -1,10 +1,11 @@
 'use client';
 
+import { useEffect } from 'react';
+
 import { servos, updateServos, useStore } from '~/client';
 import { Canvas, OrbitControls, useFrame } from '~/three/react';
 
 import { Robot } from './_components/robot';
-import { useEffect } from 'react';
 
 let sign = 1;
 
