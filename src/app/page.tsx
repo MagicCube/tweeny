@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 
 import { servos, updateServos, useStore } from '~/client';
 import { tween } from '~/client/tween';
+import { updateTweens } from '~/client/tween/tween-runner';
 import { Canvas, OrbitControls, useFrame } from '~/three/react';
 
 import { Robot } from './_components/robot';
@@ -11,6 +12,7 @@ import { Robot } from './_components/robot';
 function Scene() {
   const legRotations = useStore((state) => state.legRotations);
   useFrame(() => {
+    updateTweens();
     updateServos();
   });
   useEffect(() => {
@@ -21,8 +23,8 @@ function Scene() {
         .delay(1000)
         .to(180, 1000)
         .delay(1000)
-        .repeat(5)
-        .build(),
+        // .repeat(2)
+        .start(),
     );
   }, []);
   return <Robot legRotations={legRotations} />;

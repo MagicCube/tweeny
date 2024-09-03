@@ -1,4 +1,5 @@
 import { cloneTween, computeTweenTimes, type Tween } from './tween';
+import { startTween } from './tween-runner';
 import { type TweenTarget } from './tween-target';
 
 class TweenBuilder<T extends TweenTarget> {
@@ -66,21 +67,26 @@ class TweenBuilder<T extends TweenTarget> {
   }
 
   build(): Readonly<Tween<T>> {
+    if (!this._tween.keyframes.length) {
+      throw new Error('Tween must have at least one keyframe');
+    }
+
     const result = cloneTween(this._tween);
-    if (
-      result.iterationCount > 1 &&
-      result.keyframes.length &&
-      this._timeOffset > 0
-    ) {
+    if (this._timeOffset > 0) {
       const lastFrame = result.keyframes[result.keyframes.length - 1]!;
       result.keyframes.push({
-        values: lastFrame.values,
         startTime: lastFrame.endTime + this._timeOffset,
         endTime: lastFrame.endTime + this._timeOffset,
       });
     }
     computeTweenTimes(result);
     return result;
+  }
+
+  start() {
+    const tween = this.build();
+    startTween(tween);
+    return tween;
   }
 }
 
