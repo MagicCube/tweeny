@@ -3,11 +3,10 @@
 import { useEffect } from 'react';
 
 import { servos, updateServos, useStore } from '~/client';
+import { tween } from '~/client/tween';
 import { Canvas, OrbitControls, useFrame } from '~/three/react';
 
 import { Robot } from './_components/robot';
-
-let sign = 1;
 
 function Scene() {
   const legRotations = useStore((state) => state.legRotations);
@@ -15,13 +14,16 @@ function Scene() {
     updateServos();
   });
   useEffect(() => {
-    setInterval(() => {
-      servos[0].write(90 + sign * 30);
-      servos[1].write(90 - sign * 30);
-      servos[2].write(90 + sign * 30);
-      servos[3].write(90 - sign * 30);
-      sign *= -1;
-    }, 500);
+    console.info(
+      tween(servos, 'rotation')
+        .delay(1000)
+        .to(90, 1000)
+        .delay(1000)
+        .to(180, 1000)
+        .delay(1000)
+        .repeat(5)
+        .build(),
+    );
   }, []);
   return <Robot legRotations={legRotations} />;
 }
