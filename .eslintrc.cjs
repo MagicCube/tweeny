@@ -38,6 +38,40 @@ const config = {
     '@typescript-eslint/no-unsafe-assignment': 'off',
     '@typescript-eslint/no-unsafe-call': 'off',
     '@typescript-eslint/no-unsafe-member-access': 'off',
+    'import/order': [
+      'error',
+      {
+        distinctGroup: false,
+        groups: [
+          'builtin',
+          'external',
+          'internal',
+          'parent',
+          'sibling',
+          'index',
+          'object',
+        ],
+        pathGroups: [
+          {
+            pattern: '~/**',
+            group: 'internal',
+          },
+          {
+            pattern: './**.css',
+            group: 'object',
+          },
+          {
+            pattern: '**.md',
+            group: 'object',
+          },
+        ],
+        'newlines-between': 'always',
+        alphabetize: {
+          order: 'asc',
+          caseInsensitive: true,
+        },
+      },
+    ],
   },
 };
 module.exports = config;
