@@ -1,14 +1,13 @@
 import { type Tween } from './tween';
-import { type TweenTarget } from './tween-target';
 
-const tweens: RunnableTween<TweenTarget>[] = [];
+const tweens: RunnableTween[] = [];
 
-type RunnableTween<T extends TweenTarget> = Readonly<Tween<T>> & {
+type RunnableTween = Readonly<Tween> & {
   offsetTime: number;
 };
 
-export function startTween<T extends TweenTarget>(tween: Readonly<Tween<T>>) {
-  const runnableTween = tween as unknown as RunnableTween<T>;
+export function startTween(tween: Readonly<Tween>) {
+  const runnableTween = tween as unknown as RunnableTween;
   runnableTween.offsetTime = Date.now();
   tweens.push(runnableTween);
 }
@@ -26,7 +25,7 @@ export function updateTweens() {
     return;
   }
 
-  const toBeRemoved: RunnableTween<TweenTarget>[] = [];
+  const toBeRemoved: RunnableTween[] = [];
   for (const tween of tweens) {
     const relativeTime = now - tween.offsetTime;
     if (relativeTime > tween.endTime) {
@@ -46,9 +45,6 @@ export function updateTweens() {
   lastUpdate = now;
 }
 
-function updateTween<T extends TweenTarget>(
-  tween: RunnableTween<T>,
-  time: number,
-) {
+function updateTween(tween: RunnableTween, time: number) {
   // TODO:
 }

@@ -2,11 +2,11 @@ import { cloneTween, computeTweenTimes, type Tween } from './tween';
 import { startTween } from './tween-runner';
 import { type TweenTarget } from './tween-target';
 
-class TweenBuilder<T extends TweenTarget> {
-  private _tween: Tween<T>;
+class TweenBuilder {
+  private _tween: Tween;
   private _timeOffset = 0;
 
-  constructor(targets: T | T[], propName: string) {
+  constructor(targets: TweenTarget | TweenTarget[], propName: string) {
     this._tween = {
       targets: Array.isArray(targets) ? targets : [targets],
       propName,
@@ -66,7 +66,7 @@ class TweenBuilder<T extends TweenTarget> {
     return this;
   }
 
-  build(): Readonly<Tween<T>> {
+  build(): Readonly<Tween> {
     if (!this._tween.keyframes.length) {
       throw new Error('Tween must have at least one keyframe');
     }
@@ -90,9 +90,9 @@ class TweenBuilder<T extends TweenTarget> {
   }
 }
 
-export function tween<T extends TweenTarget>(
-  targets: T | T[],
+export function tween(
+  targets: TweenTarget | TweenTarget[],
   propName: string,
-): TweenBuilder<T> {
+): TweenBuilder {
   return new TweenBuilder(targets, propName);
 }

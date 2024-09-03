@@ -2,8 +2,8 @@ import { cloneTweenFrame, type TweenFrame } from './tween-frame';
 import { type TweenIterationMode } from './tween-iteration-mode';
 import { type TweenTarget } from './tween-target';
 
-export interface Tween<T extends TweenTarget> {
-  targets: ReadonlyArray<T>;
+export interface Tween {
+  targets: ReadonlyArray<TweenTarget>;
   propName: string;
   iterationCount: number;
   iterationMode: TweenIterationMode;
@@ -13,7 +13,7 @@ export interface Tween<T extends TweenTarget> {
   endTime: number;
 }
 
-export function cloneTween<T extends TweenTarget>(tween: Tween<T>): Tween<T> {
+export function cloneTween(tween: Tween): Tween {
   return {
     ...tween,
     targets: [...tween.targets],
@@ -21,7 +21,7 @@ export function cloneTween<T extends TweenTarget>(tween: Tween<T>): Tween<T> {
   };
 }
 
-export function computeTweenTimes(tween: Tween<TweenTarget>): void {
+export function computeTweenTimes(tween: Tween): void {
   if (!tween.keyframes.length) {
     tween.startTime = 0;
     tween.endTime = 0;
