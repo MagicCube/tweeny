@@ -1,6 +1,6 @@
-export interface RobotLegRotations {
-  frontLeft: number;
-  frontRight: number;
-  backLeft: number;
-  backRight: number;
-}
+export type RobotLegRotations = [
+  frontLeft: number,
+  frontRight: number,
+  backLeft: number,
+  backRight: number,
+];

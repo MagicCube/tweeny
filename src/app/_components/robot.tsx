@@ -1,6 +1,12 @@
 import { memo } from 'react';
 
-import { type RobotLegRotations } from '~/client';
+import {
+  BACK_LEFT,
+  BACK_RIGHT,
+  FRONT_LEFT,
+  FRONT_RIGHT,
+  type RobotLegRotations,
+} from '~/client';
 import { Edges } from '~/three/react';
 
 import { ExtrudeSVG } from './extrude-svg';
@@ -15,18 +21,14 @@ const LEG_WIDTH = 8;
 const LEG_THICKNESS = 6;
 const LEG_OFFSET_X = LEG_WIDTH;
 
-export function Robot({
-  legRotations: { frontLeft = 0, frontRight = 0, backLeft = 0, backRight = 0 },
-}: {
-  legRotations: RobotLegRotations;
-}) {
+export function Robot({ legRotations }: { legRotations: RobotLegRotations }) {
   return (
     <group>
       <RobotBody />
-      <RobotLeg front left rotation={frontLeft} color="blue" />
-      <RobotLeg front right rotation={frontRight} color="blue" />
-      <RobotLeg back left rotation={backLeft} color="red" />
-      <RobotLeg back right rotation={backRight} color="red" />
+      <RobotLeg front left rotation={legRotations[FRONT_LEFT]} color="blue" />
+      <RobotLeg front right rotation={legRotations[FRONT_RIGHT]} color="blue" />
+      <RobotLeg back left rotation={legRotations[BACK_LEFT]} color="red" />
+      <RobotLeg back right rotation={legRotations[BACK_RIGHT]} color="red" />
     </group>
   );
 }

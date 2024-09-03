@@ -1,10 +1,9 @@
-import { setLegRotations } from '../store';
-import { type RobotLegRotations } from '../types';
+import { setLegRotation as setLegRotation } from '../store';
 
 // Minimum time between each update
-const MIN_UPDATE_TICK_TIME = 1000 / 60;
+const MIN_UPDATE_INTERVAL = 1000 / 60;
 
-// Milliseconds per degree, 0.12s per 60 degrees
+// degrees per millisecond, 0.12s per 60 degrees
 const MAX_SPEED = 0.50625;
 
 // +- 135 degrees
@@ -14,10 +13,9 @@ export class Servo {
   private _angle = 0;
   private _targetAngle = 0;
   private _moving = false;
-  private _movingDirection = 0;
-  private _lastTick = 0;
+  private _lastUpdateTick = 0;
 
-  constructor(readonly name: keyof RobotLegRotations) {}
+  constructor(readonly pin: number) {}
 
   get angle() {
     return this._angle;
@@ -31,10 +29,6 @@ export class Servo {
     return this._moving;
   }
 
-  get movingDirection() {
-    return this._movingDirection;
-  }
-
   write(angle: number) {
     const targetAngle = Math.min(Math.max(-MAX_ANGLE, angle % 360), MAX_ANGLE);
     this._targetAngle = targetAngle;
@@ -46,32 +40,36 @@ export class Servo {
 
   update() {
     const now = Date.now();
-    this._movingDirection = Math.sign(this.targetAngle - this._angle);
-    if (this._movingDirection !== 0) {
-      let elapsed = 0;
-      if (this._lastTick) {
-        elapsed = now - this._lastTick;
-      }
-
-      if (this._lastTick !== 0 && elapsed < MIN_UPDATE_TICK_TIME) {
+    let elapsed = 0;
+    if (this._lastUpdateTick) {
+      elapsed = now - this._lastUpdateTick;
+      if (elapsed < MIN_UPDATE_INTERVAL) {
         // Wait until the next tick
         return;
       }
+    }
 
+    this._update(elapsed);
+
+    this._lastUpdateTick = now;
+  }
+
+  private _update(elapsed: number) {
+    const movingDirection = Math.sign(this.targetAngle - this.angle);
+    if (movingDirection) {
       const step = Math.min(
         MAX_SPEED * elapsed,
-        Math.abs(this._targetAngle - this._angle),
+        Math.abs(this.targetAngle - this.angle),
       );
-      this._write(this._angle + step * this.movingDirection);
+      this._immediatelySetAngle(this.angle + step * movingDirection);
       this._moving = true;
-      this._lastTick = now;
     } else {
       this._moving = false;
     }
   }
 
-  private _write(angle: number) {
+  private _immediatelySetAngle(angle: number) {
     this._angle = angle;
-    setLegRotations({ [this.name]: angle });
+    setLegRotation(this.pin, angle);
   }
 }

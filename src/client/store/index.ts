@@ -9,17 +9,15 @@ type State = {
 
 export const useStore = create<State>()(
   immer(() => ({
-    legRotations: {
-      frontLeft: 0,
-      frontRight: 0,
-      backLeft: 0,
-      backRight: 0,
-    },
+    legRotations: [0, 0, 0, 0],
   })),
 );
 
-export function setLegRotations(legRotations: Partial<RobotLegRotations>) {
+export function setLegRotation(pin: number, angle: number) {
   useStore.setState((state) => {
-    state.legRotations = { ...state.legRotations, ...legRotations };
+    if (pin < 0 || pin > state.legRotations.length - 1) {
+      throw new Error(`Invalid pin number: ${pin}`);
+    }
+    state.legRotations[pin] = angle;
   });
 }

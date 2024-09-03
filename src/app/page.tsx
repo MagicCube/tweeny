@@ -1,30 +1,26 @@
 'use client';
 
-import { Servo, useStore } from '~/client';
+import { servos, updateServos, useStore } from '~/client';
 import { Canvas, OrbitControls, useFrame } from '~/three/react';
 
 import { Robot } from './_components/robot';
 import { useEffect } from 'react';
 
-const servo1 = new Servo('frontLeft');
-const servo2 = new Servo('frontRight');
-const servo3 = new Servo('backLeft');
-const servo4 = new Servo('backRight');
+let sign = 1;
 
 function Scene() {
   const legRotations = useStore((state) => state.legRotations);
   useFrame(() => {
-    // TODO: Move legs
-    servo1.update();
-    servo2.update();
-    servo3.update();
-    servo4.update();
+    updateServos();
   });
   useEffect(() => {
-    servo1.write(90);
-    servo2.write(135);
-    servo3.write(90);
-    servo4.write(-135);
+    setInterval(() => {
+      servos[0].write(90 + sign * 30);
+      servos[1].write(90 - sign * 30);
+      servos[2].write(90 + sign * 30);
+      servos[3].write(90 - sign * 30);
+      sign *= -1;
+    }, 500);
   }, []);
   return <Robot legRotations={legRotations} />;
 }
