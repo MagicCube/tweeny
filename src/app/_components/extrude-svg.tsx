@@ -1,14 +1,13 @@
-import { Extrude } from "@react-three/drei";
-import { type Vector3 } from "@react-three/fiber";
 import React, {
   Children,
   type ReactElement,
   useMemo,
   type ReactNode,
-} from "react";
-import ReactDOMServer from "react-dom/server";
-import { ShapeGeometry, type Shape } from "three";
-import { SVGLoader } from "three/examples/jsm/loaders/SVGLoader.js";
+} from 'react';
+import ReactDOMServer from 'react-dom/server';
+
+import { ShapeGeometry, type Shape, SVGLoader } from '~/three/core';
+import { Extrude, type Vector3 } from '~/three/react';
 
 export function ExtrudeSVG({
   children,
@@ -21,10 +20,10 @@ export function ExtrudeSVG({
 }) {
   const svgString = useMemo(() => {
     const svgElement = Children.toArray(children).find(
-      (child) => (child as ReactElement).type === "svg",
+      (child) => (child as ReactElement).type === 'svg',
     );
     if (!svgElement) {
-      throw new Error("SVG element not found in children");
+      throw new Error('SVG element not found in children');
     }
     return ReactDOMServer.renderToStaticMarkup(svgElement);
   }, [children]);
@@ -38,7 +37,7 @@ export function ExtrudeSVG({
   const filteredChildren = useMemo(
     () =>
       Children.toArray(children).filter(
-        (child) => (child as ReactElement).type !== "svg",
+        (child) => (child as ReactElement).type !== 'svg',
       ),
     [children],
   );
@@ -64,7 +63,7 @@ function svgToShapes(svgString: string): Shape[] {
   const svg = new SVGLoader().parse(svgString);
   const svgPath = svg.paths[0];
   if (!svgPath) {
-    throw new Error("Invalid SVG");
+    throw new Error('Invalid SVG');
   }
   return svgPath.toShapes(true);
 }

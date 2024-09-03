@@ -1,30 +1,32 @@
-"use client";
+'use client';
 
-import { Canvas, useFrame } from "@react-three/fiber";
-import { OrbitControls } from "@react-three/drei";
+import { Servo, useStore } from '~/client';
+import { Canvas, OrbitControls, useFrame } from '~/three/react';
 
-import { Robot } from "./_components/robot";
-import { useState } from "react";
+import { Robot } from './_components/robot';
+import { useEffect } from 'react';
 
-const STEP = 6;
-const BASE = 90;
-const AMPLITUDE = 30;
+const servo1 = new Servo('frontLeft');
+const servo2 = new Servo('frontRight');
+const servo3 = new Servo('backLeft');
+const servo4 = new Servo('backRight');
 
 function Scene() {
-  const [angle, setAngle] = useState(0);
+  const legRotations = useStore((state) => state.legRotations);
   useFrame(() => {
-    setAngle((angle) => angle + (STEP * Math.PI) / 180);
+    // TODO: Move legs
+    servo1.update();
+    servo2.update();
+    servo3.update();
+    servo4.update();
   });
-  return (
-    <Robot
-      legRotations={{
-        frontLeft: Math.sin(angle) * AMPLITUDE + BASE,
-        frontRight: -Math.sin(angle) * AMPLITUDE + BASE,
-        backLeft: -Math.sin(angle) * AMPLITUDE + BASE,
-        backRight: Math.sin(angle) * AMPLITUDE + BASE,
-      }}
-    />
-  );
+  useEffect(() => {
+    servo1.write(90);
+    servo2.write(135);
+    servo3.write(90);
+    servo4.write(-135);
+  }, []);
+  return <Robot legRotations={legRotations} />;
 }
 
 export default function Page() {

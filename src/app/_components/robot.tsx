@@ -1,7 +1,9 @@
-import { Edges } from "@react-three/drei";
-import { memo } from "react";
+import { memo } from 'react';
 
-import { ExtrudeSVG } from "./extrude-svg";
+import { type RobotLegRotations } from '~/client';
+import { Edges } from '~/three/react';
+
+import { ExtrudeSVG } from './extrude-svg';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const BODY_LENGTH = 94;
@@ -12,13 +14,6 @@ const LEG_LENGTH = 48;
 const LEG_WIDTH = 8;
 const LEG_THICKNESS = 6;
 const LEG_OFFSET_X = LEG_WIDTH;
-
-export interface RobotLegRotations {
-  frontLeft: number;
-  frontRight: number;
-  backLeft: number;
-  backRight: number;
-}
 
 export function Robot({
   legRotations: { frontLeft = 0, frontRight = 0, backLeft = 0, backRight = 0 },
@@ -45,43 +40,46 @@ const RobotBody = memo(() => (
     <Edges color="black" />
   </ExtrudeSVG>
 ));
-RobotBody.displayName = "RobotBody";
+RobotBody.displayName = 'RobotBody';
 
-function RobotLeg({
-  color = "red",
-  left = false,
-  front = false,
-  rotation = 0,
-}: {
-  color?: string;
-  left?: boolean;
-  right?: boolean;
-  front?: boolean;
-  back?: boolean;
-  rotation?: number;
-}) {
-  const x = front ? LEG_LENGTH - LEG_OFFSET_X : -LEG_LENGTH + LEG_OFFSET_X;
-  const y = 0;
-  const z = left
-    ? -BODY_WIDTH / 2 - LEG_THICKNESS / 2
-    : BODY_WIDTH / 2 + LEG_THICKNESS / 2;
+const RobotLeg = memo(
+  ({
+    color = 'red',
+    left = false,
+    front = false,
+    rotation = 0,
+  }: {
+    color?: string;
+    left?: boolean;
+    right?: boolean;
+    front?: boolean;
+    back?: boolean;
+    rotation?: number;
+  }) => {
+    const x = front ? LEG_LENGTH - LEG_OFFSET_X : -LEG_LENGTH + LEG_OFFSET_X;
+    const y = 0;
+    const z = left
+      ? -BODY_WIDTH / 2 - LEG_THICKNESS / 2
+      : BODY_WIDTH / 2 + LEG_THICKNESS / 2;
 
-  rotation = rotation % 360;
-  if (rotation < -135) {
-    rotation = -135;
-  } else if (rotation > 135) {
-    rotation = 135;
-  }
-  const degree = front ? 180 - rotation : rotation;
+    rotation = rotation % 360;
+    if (rotation < -135) {
+      rotation = -135;
+    } else if (rotation > 135) {
+      rotation = 135;
+    }
+    const degree = front ? 180 - rotation : rotation;
 
-  return (
-    <group position={[x, y, z]} rotation={[0, 0, (Math.PI / 180) * degree]}>
-      <LegMesh color={color} />
-    </group>
-  );
-}
+    return (
+      <group position={[x, y, z]} rotation={[0, 0, (Math.PI / 180) * degree]}>
+        <LegMesh color={color} />
+      </group>
+    );
+  },
+);
+RobotLeg.displayName = 'RobotLeg';
 
-const LegMesh = memo(({ color = "red" }: { color?: string }) => (
+const LegMesh = memo(({ color = 'red' }: { color?: string }) => (
   <ExtrudeSVG
     depth={LEG_THICKNESS}
     position={[-LEG_LENGTH / 2 + LEG_WIDTH / 2, 0, 0]}
@@ -93,4 +91,4 @@ const LegMesh = memo(({ color = "red" }: { color?: string }) => (
     <Edges color="black" />
   </ExtrudeSVG>
 ));
-LegMesh.displayName = "LegMesh";
+LegMesh.displayName = 'LegMesh';
