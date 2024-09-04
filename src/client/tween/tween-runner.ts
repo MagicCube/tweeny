@@ -2,9 +2,9 @@ import { type Tween } from './tween';
 
 const tweens: RunnableTween[] = [];
 
-type RunnableTween = Readonly<Tween> & {
+interface RunnableTween extends Tween {
   offsetTime: number;
-};
+}
 
 export function startTween(tween: Readonly<Tween>) {
   const runnableTween = tween as unknown as RunnableTween;
