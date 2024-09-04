@@ -1,6 +1,7 @@
 export interface TweenFrame {
   startTime: number;
   endTime: number;
+  duration: number;
   values?: ReadonlyArray<number>;
 }
 

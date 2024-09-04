@@ -43,6 +43,7 @@ class TweenBuilder {
       values,
       startTime: adjustedStartTime,
       endTime: adjustedStartTime + duration,
+      duration,
     });
     this._timeOffset = 0; // Reset time offset after adding a keyframe
     return this;
@@ -77,6 +78,7 @@ class TweenBuilder {
       result.keyframes.push({
         startTime: lastFrame.endTime + this._timeOffset,
         endTime: lastFrame.endTime + this._timeOffset,
+        duration: 0,
       });
     }
     computeTweenTimes(result);
