@@ -2,7 +2,13 @@
 
 import { useEffect } from 'react';
 
-import { servos, updateServos, useStore } from '~/client';
+import {
+  allServos,
+  diagonalServos1,
+  diagonalServos2,
+  updateServos,
+  useStore,
+} from '~/client';
 import { tween } from '~/client/tween';
 import { updateTweens } from '~/client/tween/tween-runner';
 import { Canvas, OrbitControls, useFrame } from '~/three/react';
@@ -16,16 +22,11 @@ function Scene() {
     updateServos();
   });
   useEffect(() => {
-    console.info(
-      tween(servos, 'rotation')
-        .delay(1000)
-        .to(90, 1000)
-        .delay(1000)
-        .to(180, 1000)
-        .delay(1000)
-        // .repeat(2)
-        .start(),
-    );
+    tween(allServos, 0).to(90, 600).start();
+    // which equal to
+    setTimeout(() => {
+      tween(allServos, 90).to(60, 1000).to(120, 1000).yoyo().start();
+    }, 1000);
   }, []);
   return <Robot legRotations={legRotations} />;
 }

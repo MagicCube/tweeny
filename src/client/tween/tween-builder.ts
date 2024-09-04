@@ -5,17 +5,23 @@ import { type TweenTarget } from './tween-target';
 class TweenBuilder {
   private _tween: Tween;
   private _timeOffset = 0;
+  private _initialValues: number[] = [];
 
-  constructor(targets: TweenTarget | TweenTarget[], propName: string) {
+  constructor(
+    targets: TweenTarget | TweenTarget[],
+    initialValues: number | number[],
+  ) {
     this._tween = {
       targets: Array.isArray(targets) ? targets : [targets],
-      propName,
       iterationCount: 1,
       iterationMode: 'once',
       keyframes: [],
       startTime: 0,
       endTime: 0,
+      duration: 0,
+      durationPerIteration: 0,
     };
+    this._initialValues = this._extractValues(initialValues);
   }
 
   delay(duration: number): this {
@@ -23,26 +29,17 @@ class TweenBuilder {
     return this;
   }
 
-  to(value: number | number[], duration: number): this {
+  to(values: number | number[], duration: number): this {
     const lastFrame = this._tween.keyframes[this._tween.keyframes.length - 1];
-    const startTime = lastFrame ? lastFrame.endTime : 0;
-    const adjustedStartTime = startTime + this._timeOffset;
-    let values: number[] = [];
-    if (Array.isArray(value)) {
-      if (value.length === this._tween.targets.length) {
-        values = [...value];
-      } else if (value.length === this._tween.targets.length / 2) {
-        values = value.flatMap((v) => [v, v]);
-      } else {
-        throw new Error('Value array length must match target length');
-      }
-    } else {
-      values = this._tween.targets.map(() => value);
-    }
+    const startTime = (lastFrame ? lastFrame.endTime : 0) + this._timeOffset;
+    const endTime = startTime + duration;
+    const from = lastFrame?.to ?? this._initialValues;
+    const to = this._extractValues(values);
     this._tween.keyframes.push({
-      values,
-      startTime: adjustedStartTime,
-      endTime: adjustedStartTime + duration,
+      to,
+      from,
+      startTime,
+      endTime,
       duration,
     });
     this._timeOffset = 0; // Reset time offset after adding a keyframe
@@ -79,6 +76,8 @@ class TweenBuilder {
         startTime: lastFrame.endTime + this._timeOffset,
         endTime: lastFrame.endTime + this._timeOffset,
         duration: 0,
+        from: [],
+        to: [],
       });
     }
     computeTweenTimes(result);
@@ -90,11 +89,27 @@ class TweenBuilder {
     startTween(tween);
     return tween;
   }
+
+  private _extractValues(values: number | number[]): number[] {
+    let results: number[] = [];
+    if (Array.isArray(values)) {
+      if (values.length === this._tween.targets.length) {
+        results = [...values];
+      } else if (values.length === this._tween.targets.length / 2) {
+        results = values.flatMap((v) => [v, v]);
+      } else {
+        throw new Error('Value array length must match target length');
+      }
+    } else {
+      results = this._tween.targets.map(() => values);
+    }
+    return results;
+  }
 }
 
 export function tween(
   targets: TweenTarget | TweenTarget[],
-  propName: string,
+  values: number | number[],
 ): TweenBuilder {
-  return new TweenBuilder(targets, propName);
+  return new TweenBuilder(targets, values);
 }
