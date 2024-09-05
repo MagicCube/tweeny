@@ -4,12 +4,13 @@ export type TweenFrame = {
   duration: number;
   from: ReadonlyArray<number>;
   to: ReadonlyArray<number>;
+  name?: string;
 };
 
 export function cloneTweenFrame(frame: TweenFrame): TweenFrame {
   return {
     ...frame,
-    to: frame.to ? [...frame.to] : [],
-    from: frame.from ? [...frame.from] : [],
+    to: [...frame.to],
+    from: [...frame.from],
   };
 }

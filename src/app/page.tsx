@@ -9,7 +9,12 @@ import {
   updateServos,
   useStore,
 } from '~/client';
-import { tween } from '~/client/tween';
+import {
+  type Tween,
+  tween,
+  type TweenFrame,
+  yoyoTweenFrames,
+} from '~/client/tween';
 import { updateTweens } from '~/client/tween/tween-runner';
 import { Canvas, OrbitControls, useFrame } from '~/three/react';
 
@@ -25,7 +30,15 @@ function Scene() {
     tween(allServos, 0).to(90, 600).start();
     // which equal to
     setTimeout(() => {
-      tween(allServos, 90).to(60, 1000).to(120, 1000).yoyo().start();
+      tween(allServos, 90)
+        .to(60, 500, '1) 90-60')
+        .delay(1000)
+        .to(90, 500, '2) 60-90')
+        .delay(1000)
+        .to(120, 500, '3) 90-120')
+        .delay(500)
+        .yoyo(4)
+        .start();
     }, 1000);
   }, []);
   return <Robot legRotations={legRotations} />;
@@ -50,4 +63,16 @@ export default function Page() {
       </Canvas>
     </div>
   );
+}
+
+function outputFrames(frames: TweenFrame[]) {
+  for (const keyframe of frames) {
+    if (keyframe.to.length === 0) {
+      console.info(`delay(${keyframe.duration})`);
+    } else {
+      console.info(
+        `${keyframe.from[0]} - ${keyframe.to[0]} in ${keyframe.duration}ms`,
+      );
+    }
+  }
 }

@@ -4,7 +4,6 @@ import { type TweenTarget } from './tween-target';
 
 class TweenBuilder {
   private _tween: Tween;
-  private _timeOffset = 0;
   private _initialValues: number[] = [];
 
   constructor(
@@ -16,33 +15,43 @@ class TweenBuilder {
       iterationCount: 1,
       iterationMode: 'once',
       keyframes: [],
-      startTime: 0,
-      endTime: 0,
       duration: 0,
       durationPerIteration: 0,
+      from: [],
+      to: [],
     };
     this._initialValues = this._extractValues(initialValues);
   }
 
   delay(duration: number): this {
-    this._timeOffset += duration;
+    this._tween.keyframes.push({
+      to: [],
+      from: [],
+      startTime: this._tween.durationPerIteration,
+      endTime: this._tween.durationPerIteration + duration,
+      duration,
+    });
+    this._tween.durationPerIteration += duration;
     return this;
   }
 
-  to(values: number | number[], duration: number): this {
-    const lastFrame = this._tween.keyframes[this._tween.keyframes.length - 1];
-    const startTime = (lastFrame ? lastFrame.endTime : 0) + this._timeOffset;
-    const endTime = startTime + duration;
-    const from = lastFrame?.to ?? this._initialValues;
+  to(values: number | number[], duration: number, name?: string): this {
+    const from =
+      this._tween.to.length === 0 ? this._initialValues : this._tween.to;
     const to = this._extractValues(values);
     this._tween.keyframes.push({
       to,
       from,
-      startTime,
-      endTime,
+      startTime: this._tween.durationPerIteration,
+      endTime: this._tween.durationPerIteration + duration,
       duration,
+      name,
     });
-    this._timeOffset = 0; // Reset time offset after adding a keyframe
+    this._tween.durationPerIteration += duration;
+    this._tween.to = to;
+    if (this._tween.from.length === 0) {
+      this._tween.from = to;
+    }
     return this;
   }
 
@@ -70,16 +79,6 @@ class TweenBuilder {
     }
 
     const result = cloneTween(this._tween);
-    if (this._timeOffset > 0) {
-      const lastFrame = result.keyframes[result.keyframes.length - 1]!;
-      result.keyframes.push({
-        startTime: lastFrame.endTime + this._timeOffset,
-        endTime: lastFrame.endTime + this._timeOffset,
-        duration: 0,
-        from: [],
-        to: [],
-      });
-    }
     computeTweenTimes(result);
     return result;
   }

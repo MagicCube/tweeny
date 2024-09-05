@@ -1,8 +1,4 @@
-import {
-  cloneTween,
-  yoyoTween as reverseTweenKeyframes,
-  type Tween,
-} from './tween';
+import { cloneTweenFrames, yoyoTweenFrames, type Tween } from './tween';
 import { type TweenFrame } from './tween-frame';
 
 const tweens: RunnableTween[] = [];
@@ -33,10 +29,10 @@ export function updateTweens() {
   const toBeRemoved: RunnableTween[] = [];
   for (const tween of tweens) {
     const relativeTime = now - tween.offsetTime;
-    if (relativeTime > tween.endTime) {
-      updateTween(tween, tween.endTime);
+    if (relativeTime > tween.duration) {
+      updateTween(tween, tween.duration);
       toBeRemoved.push(tween);
-    } else if (relativeTime >= tween.startTime) {
+    } else if (relativeTime >= 0) {
       updateTween(tween, relativeTime);
     }
   }
@@ -56,7 +52,7 @@ function updateTween(tween: RunnableTween, time: number) {
     time,
   );
   const frame = getCurrentFrame(tween, { iterations, direction, relativeTime });
-  if (!frame || frame.duration === 0) {
+  if (!frame || frame.to.length === 0) {
     return;
   }
 
@@ -81,21 +77,18 @@ function getCurrentFrame(
     relativeTime,
   }: { iterations: number; direction: number; relativeTime: number },
 ) {
+  if (tween.keyframes.length === 0) {
+    return undefined;
+  }
+
   let frames: TweenFrame[];
   if (direction === 1) {
-    frames = cloneTween(tween).keyframes;
+    frames = cloneTweenFrames(tween);
     if (iterations > 0) {
-      const lastNonEmptyFrame = frames
-        .slice()
-        .reverse()
-        .find((f) => f.duration > 0);
-      if (lastNonEmptyFrame) {
-        const lastValues = lastNonEmptyFrame.to;
-        frames[0]!.from = lastValues;
-      }
+      frames[0]!.from = [...tween.to];
     }
   } else {
-    frames = reverseTweenKeyframes(tween);
+    frames = yoyoTweenFrames(tween);
   }
 
   const frame = frames.find(

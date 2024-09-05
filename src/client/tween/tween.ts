@@ -8,8 +8,9 @@ export interface Tween {
   iterationMode: TweenIterationMode;
   keyframes: TweenFrame[];
 
-  startTime: number;
-  endTime: number;
+  from: number[];
+  to: number[];
+
   duration: number;
   durationPerIteration: number;
 }
@@ -18,50 +19,47 @@ export function cloneTween(tween: Tween): Tween {
   return {
     ...tween,
     targets: [...tween.targets],
-    keyframes: [...tween.keyframes.map(cloneTweenFrame)],
+    keyframes: cloneTweenFrames(tween),
   };
 }
 
 export function computeTweenTimes(tween: Tween): void {
-  if (!tween.keyframes.length) {
-    tween.startTime = 0;
-    tween.endTime = 0;
-    tween.duration = 0;
-    return;
-  }
-  const firstFrame = tween.keyframes[0]!;
-  const lastFrame = tween.keyframes[tween.keyframes.length - 1]!;
-  tween.startTime = firstFrame.startTime;
-  tween.durationPerIteration = lastFrame.endTime;
-  if (tween.iterationCount === Infinity) {
-    tween.endTime = Infinity;
-    tween.duration = Infinity;
-  } else {
-    const duration = lastFrame.endTime;
-    tween.endTime = duration * tween.iterationCount;
-    tween.duration = tween.endTime;
-  }
+  tween.duration = tween.durationPerIteration * tween.iterationCount;
 }
 
-export function yoyoTween(tween: Tween) {
-  const lastNonEmptyFrame = tween.keyframes
-    .slice()
-    .reverse()
-    .find((frame) => frame.duration > 0);
-  if (!lastNonEmptyFrame) {
-    throw new Error('Tween has no non-empty keyframes');
-  }
-  const lastValues = lastNonEmptyFrame.to;
+export function cloneTweenFrames(tween: Tween) {
+  return tween.keyframes.map(cloneTweenFrame);
+}
 
-  const result = cloneTween(tween);
-  result.keyframes[0]!.from = lastValues;
-  result.keyframes.reverse();
-  for (const frame of result.keyframes) {
-    const to = frame.from;
-    frame.from = frame.to;
-    frame.to = to;
-    frame.startTime = tween.durationPerIteration - frame.endTime;
-    frame.endTime = frame.startTime + frame.duration;
+export function yoyoTweenFrames(tween: Tween) {
+  const frames = cloneTweenFrames(tween);
+  const firstNonEmptyFrameIndex = frames.findIndex(
+    (frame) => frame.to.length > 0,
+  );
+  if (firstNonEmptyFrameIndex !== -1) {
+    for (let i = 0; i < firstNonEmptyFrameIndex + 1; i++) {
+      frames.shift();
+    }
+    while (frames[0]?.to.length === 0) {
+      frames.shift();
+    }
   }
-  return result.keyframes;
+  frames.reverse();
+  let timeOffset = 0;
+  for (const frame of frames) {
+    swap(frame);
+    frame.startTime = timeOffset;
+    frame.endTime = timeOffset + frame.duration;
+    timeOffset = frame.endTime;
+  }
+  console.info(JSON.stringify(frames, null, 2));
+  return frames;
+}
+
+export function swap<
+  T extends { from: ReadonlyArray<number>; to: ReadonlyArray<number> },
+>(target: T) {
+  const from = target.from;
+  target.from = target.to;
+  target.to = from;
 }
