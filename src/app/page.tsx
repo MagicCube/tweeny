@@ -10,7 +10,7 @@ import {
   useStore,
 } from '~/client';
 import { tween } from '~/client/tween';
-import { updateTweens } from '~/client/tween/tween-runner';
+import { startTween, updateTweens } from '~/client/tween/tween-runner';
 import { Canvas, OrbitControls, useFrame } from '~/three/react';
 
 import { Robot } from './_components/robot';
@@ -26,11 +26,14 @@ function Scene() {
     // which equal to
     setTimeout(() => {
       const t = tween(allServos, 90)
-        .to([60, 120, 60, 120], 1000)
-        .to([120, 60, 120, 60], 1000)
+        .to([60, 120, 60, 120], 500)
         .delay(1000)
-        .repeat();
-      t.start();
+        .to([120, 60, 120, 60], 500)
+        .delay(1000)
+        .repeat()
+        .build();
+      console.info(t);
+      startTween(t);
     }, 1000);
   }, []);
   return <Robot legRotations={legRotations} />;

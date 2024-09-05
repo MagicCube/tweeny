@@ -61,10 +61,11 @@ function updateTween(tween: RunnableTween, time: number) {
   }
 
   let from = frame.from;
-  const to = frame.to;
-  if (iterations > 0 && frameIndex === 0) {
-    from = tween.keyframes[tween.keyframes.length - 1]!.to;
+  const firstMoveFrameIndex = findFirstMoveFrameIndex(tween);
+  if (firstMoveFrameIndex === frameIndex && iterations > 0) {
+    from = tween.to;
   }
+  const to = frame.to;
   let progress = (relativeTime - frame.startTime) / frame.duration;
   if (progress > 1) {
     progress = 1;
@@ -90,6 +91,10 @@ function findFrameIndex(
     (f) => f.startTime <= relativeTime && f.endTime >= relativeTime,
   );
   return frameIndex;
+}
+
+function findFirstMoveFrameIndex(tween: RunnableTween) {
+  return tween.keyframes.findIndex((f) => f.type === TweenFrameType.MoveTo);
 }
 
 function computeIterations(tween: RunnableTween, time: number) {
