@@ -1,4 +1,10 @@
+export enum TweenFrameType {
+  Sleep = 0,
+  MoveTo,
+}
+
 export type TweenFrame = {
+  type: TweenFrameType;
   startTime: number;
   endTime: number;
   duration: number;

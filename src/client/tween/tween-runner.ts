@@ -1,5 +1,5 @@
-import { cloneTweenFrames, yoyoTweenFrames, type Tween } from './tween';
-import { type TweenFrame } from './tween-frame';
+import { type Tween } from './tween';
+import { TweenFrameType } from './tween-frame';
 
 const tweens: RunnableTween[] = [];
 
@@ -25,7 +25,11 @@ export function updateTweens() {
     // Skip update
     return;
   }
+  _updateTweens(now);
+  lastUpdate = now;
+}
 
+function _updateTweens(now: number) {
   const toBeRemoved: RunnableTween[] = [];
   for (const tween of tweens) {
     const relativeTime = now - tween.offsetTime;
@@ -36,65 +40,56 @@ export function updateTweens() {
       updateTween(tween, relativeTime);
     }
   }
+
   for (const tween of toBeRemoved) {
     const index = tweens.indexOf(tween);
     if (index !== -1) {
       tweens.splice(index, 1);
     }
   }
-
-  lastUpdate = now;
 }
 
 function updateTween(tween: RunnableTween, time: number) {
-  const { iterations, direction, relativeTime } = computeIterations(
-    tween,
-    time,
-  );
-  const frame = getCurrentFrame(tween, { iterations, direction, relativeTime });
-  if (!frame || frame.to.length === 0) {
+  const { iterations, relativeTime } = computeIterations(tween, time);
+  const frameIndex = findFrameIndex(tween, { relativeTime });
+  if (frameIndex === -1) {
+    return;
+  }
+  const frame = tween.keyframes[frameIndex]!;
+  if (frame.type === TweenFrameType.Sleep) {
     return;
   }
 
+  let from = frame.from;
+  const to = frame.to;
+  if (iterations > 0 && frameIndex === 0) {
+    from = tween.keyframes[tween.keyframes.length - 1]!.to;
+  }
   let progress = (relativeTime - frame.startTime) / frame.duration;
   if (progress > 1) {
     progress = 1;
   } else if (progress < 0) {
     progress = 0;
   }
-  for (let i = 0; i < tween.targets.length; i++) {
-    const delta = frame.to[i]! - frame.from[i]!;
-    const value = frame.from[i]! + delta * progress;
-    tween.targets[i]!.write(value);
-  }
+  tween.targets.forEach((target, i) => {
+    const delta = to[i]! - from[i]!;
+    const value = from[i]! + delta * progress;
+    target.write(value);
+  });
 }
 
-function getCurrentFrame(
+function findFrameIndex(
   tween: RunnableTween,
-  {
-    iterations,
-    direction,
-    relativeTime,
-  }: { iterations: number; direction: number; relativeTime: number },
+  { relativeTime }: { relativeTime: number },
 ) {
   if (tween.keyframes.length === 0) {
-    return undefined;
+    return -1;
   }
 
-  let frames: TweenFrame[];
-  if (direction === 1) {
-    frames = cloneTweenFrames(tween);
-    if (iterations > 0) {
-      frames[0]!.from = [...tween.to];
-    }
-  } else {
-    frames = yoyoTweenFrames(tween);
-  }
-
-  const frame = frames.find(
+  const frameIndex = tween.keyframes.findIndex(
     (f) => f.startTime <= relativeTime && f.endTime >= relativeTime,
   );
-  return frame;
+  return frameIndex;
 }
 
 function computeIterations(tween: RunnableTween, time: number) {
@@ -102,10 +97,6 @@ function computeIterations(tween: RunnableTween, time: number) {
   if (time % tween.durationPerIteration === 0 && iterations > 0) {
     iterations--;
   }
-  let direction = 1;
-  if (tween.iterationMode === 'yoyo') {
-    direction = iterations % 2 === 0 ? 1 : -1;
-  }
   const relativeTime = time - iterations * tween.durationPerIteration;
-  return { iterations, direction, relativeTime };
+  return { iterations, relativeTime };
 }
