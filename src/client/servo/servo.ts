@@ -34,6 +34,10 @@ export class Servo {
     return this._speed;
   }
 
+  read() {
+    return this.angle;
+  }
+
   write(angle: number) {
     const targetAngle = Math.min(Math.max(-MAX_ANGLE, angle % 360), MAX_ANGLE);
     this._targetAngle = targetAngle;

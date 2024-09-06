@@ -3,20 +3,33 @@ export enum TweenFrameType {
   MoveTo,
 }
 
-export type TweenFrame = {
-  type: TweenFrameType;
+export interface GenericTweenFrame<T extends TweenFrameType = TweenFrameType> {
+  name?: string;
+  type: T;
   startTime: number;
   endTime: number;
   duration: number;
-  from: ReadonlyArray<number>;
+}
+
+export interface MoveToFrame extends GenericTweenFrame<TweenFrameType.MoveTo> {
+  type: TweenFrameType.MoveTo;
+  from?: ReadonlyArray<number>;
   to: ReadonlyArray<number>;
-  name?: string;
-};
+}
+
+export interface SleepFrame extends GenericTweenFrame<TweenFrameType.Sleep> {
+  type: TweenFrameType.Sleep;
+}
+
+export type TweenFrame = MoveToFrame | SleepFrame;
 
 export function cloneTweenFrame(frame: TweenFrame): TweenFrame {
-  return {
+  const result = {
     ...frame,
-    to: [...frame.to],
-    from: [...frame.from],
   };
+  if (result.type === TweenFrameType.MoveTo) {
+    result.from = result.from ? [...result.from] : undefined;
+    result.to = [...result.to];
+  }
+  return result;
 }

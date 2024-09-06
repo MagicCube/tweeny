@@ -5,37 +5,23 @@ import { type TweenTarget } from './tween-target';
 
 class TweenBuilder {
   private _tween: Tween;
-  private _initialValues: number[] = [];
   private _nextTweenBuilder: TweenBuilder | null = null;
 
-  constructor(
-    targets: TweenTarget | TweenTarget[],
-    initialValues: number | number[],
-    name?: string,
-  ) {
+  constructor(targets: TweenTarget | TweenTarget[], name?: string) {
+    const t = Array.isArray(targets) ? targets : [targets];
     this._tween = {
       name,
-      targets: Array.isArray(targets) ? targets : [targets],
+      targets: t,
       iterationCount: 1,
       keyframes: [],
-      from: [],
-      to: [],
       duration: 0,
       durationPerIteration: 0,
     };
-    this._initialValues = this._extractValues(initialValues);
-    this._tween.from = this._initialValues;
-    this._tween.to = this._initialValues;
   }
 
-  private _firstMoveToFrame = true;
   to(values: number | number[], duration: number, name?: string): this {
     const from = this._tween.to;
     const to = this._extractValues(values);
-    if (this._firstMoveToFrame) {
-      this._tween.from = to;
-      this._firstMoveToFrame = false;
-    }
     this._tween.keyframes.push({
       type: TweenFrameType.MoveTo,
       name,
@@ -54,8 +40,6 @@ class TweenBuilder {
     this._tween.keyframes.push({
       type: TweenFrameType.Sleep,
       name,
-      to: [],
-      from: [],
       startTime: this._tween.durationPerIteration,
       endTime: this._tween.durationPerIteration + duration,
       duration,
@@ -77,6 +61,9 @@ class TweenBuilder {
   build(): Readonly<Tween> {
     if (!this._tween.keyframes.length) {
       throw new Error('Tween must have at least one keyframe');
+    }
+    if (this._tween.to === undefined) {
+      throw new Error('Tween must have at least one moveTo keyframe');
     }
 
     const result = cloneTween(this._tween);
@@ -117,8 +104,7 @@ class TweenBuilder {
 
 export function tween(
   targets: TweenTarget | TweenTarget[],
-  values: number | number[],
   name?: string,
 ): TweenBuilder {
-  return new TweenBuilder(targets, values, name);
+  return new TweenBuilder(targets, name);
 }

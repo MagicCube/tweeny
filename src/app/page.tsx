@@ -23,14 +23,14 @@ function Scene() {
     updateServos();
   });
   useEffect(() => {
-    tween(allServos, 0).to(90, 100).start();
+    tween(allServos).to(90, 100).start();
     setTimeout(() => {
-      tween(frontLeftServo, 0)
+      tween(frontLeftServo)
         .to(-30, 500)
-        .to(30, 100)
+        .to(30, 500)
         .repeat(5)
         .chain(
-          tween(allServos, [30, 90, 90, 90])
+          tween(allServos)
             .to([60, 120, 60, 120], 500)
             .to([120, 60, 120, 60], 500)
             .repeat(),

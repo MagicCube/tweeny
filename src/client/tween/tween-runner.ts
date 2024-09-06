@@ -1,5 +1,5 @@
 import { type Tween } from './tween';
-import { TweenFrameType } from './tween-frame';
+import { type MoveToFrame, TweenFrameType } from './tween-frame';
 
 const tweens: RunnableTween[] = [];
 
@@ -9,6 +9,12 @@ interface RunnableTween extends Tween {
 
 export function startTween(tween: Readonly<Tween>) {
   const runnableTween = tween as unknown as RunnableTween;
+  const firstMoveFrame = runnableTween.keyframes.find(
+    (f) => f.type === TweenFrameType.MoveTo,
+  ) as MoveToFrame | undefined;
+  if (firstMoveFrame) {
+    firstMoveFrame.from = tween.targets.map((t) => t.read());
+  }
   runnableTween.offsetTime = Date.now();
   tweens.push(runnableTween);
 }
@@ -63,10 +69,10 @@ function updateTween(tween: RunnableTween, time: number) {
     return;
   }
 
-  let from = frame.from;
+  let from = frame.from!;
   const firstMoveFrameIndex = findFirstMoveFrameIndex(tween);
   if (firstMoveFrameIndex === frameIndex && iterations > 0) {
-    from = tween.to;
+    from = tween.to!;
   }
   const to = frame.to;
   let progress = (relativeTime - frame.startTime) / frame.duration;

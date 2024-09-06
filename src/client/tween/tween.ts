@@ -5,8 +5,7 @@ export interface Tween {
   name?: string;
   targets: ReadonlyArray<TweenTarget>;
   keyframes: Readonly<TweenFrame>[];
-  from: number[];
-  to: number[];
+  to?: number[];
   iterationCount: number;
   duration: number;
   durationPerIteration: number;
