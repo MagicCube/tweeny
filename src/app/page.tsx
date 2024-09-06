@@ -22,19 +22,16 @@ function Scene() {
     updateServos();
   });
   useEffect(() => {
-    tween(allServos, 0).to(90, 600).start();
-    // which equal to
+    tween(allServos, 0).to(90, 100).start();
     setTimeout(() => {
-      const t = tween(allServos, 90)
+      tween(allServos, 0)
         .to([60, 120, 60, 120], 500)
-        .delay(1000)
         .to([120, 60, 120, 60], 500)
-        .delay(1000)
+        .to([90, 90, 90, 90], 500)
+        .to([0, 0, 0, 0], 500)
         .repeat()
-        .build();
-      console.info(t);
-      startTween(t);
-    }, 1000);
+        .start();
+    }, 500);
   }, []);
   return <Robot legRotations={legRotations} />;
 }
