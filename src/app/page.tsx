@@ -6,11 +6,12 @@ import {
   allServos,
   diagonalServos1,
   diagonalServos2,
+  frontLeftServo,
   updateServos,
   useStore,
 } from '~/client';
 import { tween } from '~/client/tween';
-import { startTween, updateTweens } from '~/client/tween/tween-runner';
+import { updateTweens } from '~/client/tween/tween-runner';
 import { Canvas, OrbitControls, useFrame } from '~/three/react';
 
 import { Robot } from './_components/robot';
@@ -24,12 +25,16 @@ function Scene() {
   useEffect(() => {
     tween(allServos, 0).to(90, 100).start();
     setTimeout(() => {
-      tween(allServos, 0)
-        .to([60, 120, 60, 120], 500)
-        .to([120, 60, 120, 60], 500)
-        .to([90, 90, 90, 90], 500)
-        .to([0, 0, 0, 0], 500)
-        .repeat()
+      tween(frontLeftServo, 0)
+        .to(-30, 500)
+        .to(30, 100)
+        .repeat(5)
+        .chain(
+          tween(allServos, [30, 90, 90, 90])
+            .to([60, 120, 60, 120], 500)
+            .to([120, 60, 120, 60], 500)
+            .repeat(),
+        )
         .start();
     }, 500);
   }, []);
@@ -50,7 +55,7 @@ export default function Page() {
         <axesHelper args={[100]} />
         <ambientLight intensity={0.66} />
         <pointLight position={[200, 200, 200]} />
-        <OrbitControls />
+        <OrbitControls autoRotate autoRotateSpeed={-0.5} />
         <Scene />
       </Canvas>
     </div>

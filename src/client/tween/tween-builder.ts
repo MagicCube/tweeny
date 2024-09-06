@@ -6,6 +6,7 @@ import { type TweenTarget } from './tween-target';
 class TweenBuilder {
   private _tween: Tween;
   private _initialValues: number[] = [];
+  private _nextTweenBuilder: TweenBuilder | null = null;
 
   constructor(
     targets: TweenTarget | TweenTarget[],
@@ -79,8 +80,16 @@ class TweenBuilder {
     }
 
     const result = cloneTween(this._tween);
+    if (this._nextTweenBuilder) {
+      result.nextTween = this._nextTweenBuilder.build();
+    }
     computeTweenTimes(result);
     return result;
+  }
+
+  chain(next: TweenBuilder) {
+    this._nextTweenBuilder = next;
+    return this;
   }
 
   start() {

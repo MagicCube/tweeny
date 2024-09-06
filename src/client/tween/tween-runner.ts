@@ -42,6 +42,9 @@ function _updateTweens(now: number) {
   }
 
   for (const tween of toBeRemoved) {
+    if (tween.nextTween) {
+      startTween(tween.nextTween);
+    }
     const index = tweens.indexOf(tween);
     if (index !== -1) {
       tweens.splice(index, 1);

@@ -10,6 +10,7 @@ export interface Tween {
   iterationCount: number;
   duration: number;
   durationPerIteration: number;
+  nextTween?: Tween | null | undefined;
 }
 
 export function cloneTweenFrames(tween: Tween) {
