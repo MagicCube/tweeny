@@ -72,7 +72,7 @@ const RobotLeg = memo(
     } else if (rotation > 135) {
       rotation = 135;
     }
-    const degree = front ? 180 - rotation : rotation;
+    const degree = 180 - rotation;
 
     return (
       <group position={[x, y, z]} rotation={[0, 0, (Math.PI / 180) * degree]}>

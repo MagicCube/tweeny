@@ -4,9 +4,13 @@ import { useEffect } from 'react';
 
 import {
   allServos,
+  backServos,
   diagonalServos1,
   diagonalServos2,
   frontLeftServo,
+  frontServos,
+  leftServos,
+  rightServos,
   updateServos,
   useStore,
 } from '~/client';
@@ -23,20 +27,22 @@ function Scene() {
     updateServos();
   });
   useEffect(() => {
-    tween(allServos).to(90, 100).start();
-    setTimeout(() => {
-      tween(frontLeftServo)
-        .to(-30, 500)
-        .to(30, 500)
-        .repeat(5)
-        .chain(
-          tween(allServos)
-            .to([60, 120, 60, 120], 500)
-            .to([120, 60, 120, 60], 500)
-            .repeat(),
-        )
-        .start();
-    }, 500);
+    tween(allServos)
+      .to(90, 500)
+      .chain(
+        tween(diagonalServos1)
+          .to(60, 500)
+          .chain(
+            tween(diagonalServos2)
+              .to(60, 500)
+              .chain(
+                tween(diagonalServos1)
+                  .to(90, 500)
+                  .chain(tween(diagonalServos2).to(90, 500).repeat()),
+              ),
+          ),
+      )
+      .start();
   }, []);
   return <Robot legRotations={legRotations} />;
 }
@@ -55,7 +61,7 @@ export default function Page() {
         <axesHelper args={[100]} />
         <ambientLight intensity={0.66} />
         <pointLight position={[200, 200, 200]} />
-        <OrbitControls autoRotate autoRotateSpeed={-0.5} />
+        <OrbitControls autoRotate={false} autoRotateSpeed={-0.5} />
         <Scene />
       </Canvas>
     </div>

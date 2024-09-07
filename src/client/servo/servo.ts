@@ -35,7 +35,7 @@ export class Servo {
   }
 
   read() {
-    return this.angle;
+    return this._angle;
   }
 
   write(angle: number) {
